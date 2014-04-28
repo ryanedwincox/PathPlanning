@@ -75,7 +75,8 @@ def astar(input_file):
 	# remember the agent is only allowed to stay at one of these nodes
 	# 'nodes' is a list of (x,y) tuples containing the x,y position of all nodes
 	# 'lines' is a list of tuples where each tuple contains two nodes
-	nodes = []; lines = []
+	nodes = [] 
+	lines = []
 	for obstacle in obstacles:
 		nodes += [obstacle[0],obstacle[1],obstacle[2],obstacle[3]]
 		lines += [(obstacle[0],obstacle[1])]
@@ -89,6 +90,7 @@ def astar(input_file):
 
 	startH = straightLineDistance(start, goal)
 	startState = State(start, 0, startH, startH)
+	startState.succ = [startState]
 	q = startState
 	
 	# testing code ****
@@ -100,31 +102,36 @@ def astar(input_file):
 	openList = [startState]
 	closedList = []
 	
+	print ("g: " + str(startState.g_val)) # ****
+	print ("h: " + str(startState.h_val)) # ****
+	print ("f: " + str(startState.f_val)) # ****
+	print ("successors: " + output(startState.succ)) # ****
+	#print ("parent: " + str(startState.parent.pos)) # ****
+	
 	while (len(openList) != 0):
 		# finds the state in open with the lowest f_val
 		q = openList[0]
 		for node in openList:  # store open in priority queue and delete this loop
-			if (node.f_val > q.f_val):
+			if (node.f_val < q.f_val):
 				q = node
 		 
 		openList.remove(q) # pop q off open list
+		# if (len(q.succ) == 0):
+			# q.succ = [startState]
 		children = find_valid_children(q, nodes, lines, obstacles, goal)
 		for child in children: # children, list of states	
 			print ("Child: " + str(child.pos)) # ****
-			if (child == goal):
-				# TODO: stop search ****
-				print("goal") # ****
-			# **** delete
-			# child.g_val = q.g_val + straightLineDistance(q.pos, child.pos)
-			# child.h_val = straightLineDistance(child.pos, goal)
-			# child.f_val = child.g_val + child.h_val
-			# ****
 			
 			print ("g: " + str(child.g_val)) # ****
 			print ("h: " + str(child.h_val)) # ****
 			print ("f: " + str(child.f_val)) # ****
 			print ("successors: " + output(child.succ)) # ****
 			print ("parent: " + str(child.parent.pos)) # ****
+			
+			if (child.pos == goal):
+				print("goal") # ****
+				child.succ.append(child)
+				return child.succ
 			
 			# TODO: The find operation may not find the second instance with lower f_val
 			# TODO: have to add loop instead of using the find operation
@@ -174,7 +181,9 @@ def find_valid_children(state, nodes, lines, obstacles, goal):
 			newState.h_val = straightLineDistance(newState.pos, goal)
 			newState.f_val = newState.g_val + newState.h_val
 			newState.succ = state.succ
-			if (len(newState.succ) != 0 and newState.succ[len(newState.succ)-1] != state):
+			# if (len(newState.succ) == 0):
+				# newState.succ.append(start)
+			if (newState.succ[len(newState.succ)-1] != state):
 				newState.succ.append(state)
 			newState.parent = state
 			children.append(newState)
@@ -276,8 +285,8 @@ def cross(a,b):
 # outputs a list of States to the console.
 #	
 def output(list):
-	listString = ""
-	for step in list[0:len(list)]:
+	listString = str(list[0].pos)
+	for step in list[1:len(list)]:
 		listString = listString + ', ' + str(step.pos)
 	return("[" + listString + "]")
 
@@ -290,4 +299,5 @@ if __name__ == "__main__":
 	# You need to print the result in appropriate format
 	# as described in the course web-page
 	result = astar('SimpleDataSet.txt')
+	print ("Shortest Path: " + output(result))
 
