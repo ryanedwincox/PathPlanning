@@ -23,6 +23,13 @@ class State(object):
 		self.f_val = f_val
 		self.succ = succ
 		self.parent = parent
+		
+	#
+	# Compares the pos value of two states and returns true if the states are the same
+	# Allows the use of the == operator for State objects
+	#
+	# def __eq__(self, s): # ****
+		# return self.pos == s.pos 
 
 # 'astar' is a function that gives us the path and cost from start to goal state
 # Input: Input file describing the problem instance.
@@ -95,14 +102,15 @@ def astar(input_file):
 	
 	while (len(openList) != 0):
 		# finds the state in open with the lowest f_val
+		q = openList[0]
 		for node in openList:  # store open in priority queue and delete this loop
 			if (node.f_val > q.f_val):
 				q = node
 		 
 		openList.remove(q) # pop q off open list
 		children = find_valid_children(q, nodes, lines, obstacles, goal)
-		for child in children: # children, list of states
-			print (str(child.pos)) # ****
+		for child in children: # children, list of states	
+			print ("Child: " + str(child.pos)) # ****
 			if (child == goal):
 				# TODO: stop search ****
 				print("goal") # ****
@@ -119,16 +127,24 @@ def astar(input_file):
 			print ("parent: " + str(child.parent.pos)) # ****
 			
 			# TODO: The find operation may not find the second instance with lower f_val
-			if (child in openList and openList.find(child).f_val <= child.f_val):	
-				# skip child
-				print("skip child")
-			elif (child in closedList and closedList.find(child).f_val <= child.f_val):
-				# skip child
-				print("skip child")
-			# else: # add States to openList if not already in openList
-				# openList.append(child)
+			# TODO: have to add loop instead of using the find operation
+			# TODO: May have to resort openList if using priority queue	
+			skipNode1 = False
+			skipNode2 = False
+			for node in openList:
+				if (node.pos == child.pos and node.f_val <= child.f_val):
+					# do not add to openList
+					skipNode1 = True
+			for node in closedList:
+				if (node.pos == child.pos and node.f_val <= child.f_val):
+					# do not add to openList
+					skipNode2 = True
+			if (skipNode1 != True and skipNode2 != True): 
+				openList.append(child)
 		
 		closedList.append(q)
+		print ("OpenList" + output(openList))
+		print ("ClosedList" + output(closedList) + "\n")
 
 # Computes the length of the direct path from the input coordinates to the goal coordinates
 def straightLineDistance(node, goal):
@@ -158,7 +174,8 @@ def find_valid_children(state, nodes, lines, obstacles, goal):
 			newState.h_val = straightLineDistance(newState.pos, goal)
 			newState.f_val = newState.g_val + newState.h_val
 			newState.succ = state.succ
-			newState.succ.append(state)
+			if (len(newState.succ) != 0 and newState.succ[len(newState.succ)-1] != state):
+				newState.succ.append(state)
 			newState.parent = state
 			children.append(newState)
 				
