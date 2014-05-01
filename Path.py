@@ -250,17 +250,23 @@ def sub(a,b):
 def cross(a,b):
 	return a[0]*b[1]-a[1]*b[0]
 	
-# Prints the shortest path to the console	
-def output(list):
+# Prints the shortest path to the console and to a file
+def output(list, f):
+	f.write("Point\t\t\tCumulative Cost\n")
 	print("Point\t\t\tCumulative Cost")
 	for step in list:
+		f.write(str(step.pos) + "  \t\t" + str(step.g_val) + "\n")
 		print(str(step.pos) + "  \t\t" + str(step.g_val))
 
 # Main function
 if __name__ == "__main__":
-	result = astar('ComplexDataSet.txt')
+	f = open('SimpleSolution.txt', 'w')
+	
+	result = astar('SimpleDataSet.txt')
 	result.reverse()
-	output(result)
+	output(result, f)
+	
+	f.close()
 	
 	# Create visualization
 	app = PathGraphics(obstacles, result)
