@@ -1,3 +1,7 @@
+# Ryan Cox
+# 5-1-14
+# CSE415 HW2
+
 # This is a python program that allows an agent to compute
 # the shortest path from an start point to a goal point
 # that goes around rectangular obstacles. Each rectangular obstacle
@@ -11,36 +15,24 @@
 # g_val is the cost so far for A* search
 # h_val is the heuristic function value for A* search
 # f_val is the sum of g_val and h_val
-# succ is the list of successors not including self
 # parent is the parent of the node
 	
 from PathGraphics import PathGraphics
 
 class State(object):
 
-	def __init__(self, pos = (0,0), g_val = 0, h_val = 0, f_val = 0, succ = [], parent = None):
+	def __init__(self, pos = (0,0), g_val = 0, h_val = 0, f_val = 0, parent = None):
 		self.pos = pos
 		self.g_val = g_val
 		self.h_val = h_val
 		self.f_val = f_val
-		self.succ = succ
 		self.parent = parent
-		
-	#
-	# Compares the pos value of two states and returns true if the states are the same
-	# Allows the use of the == operator for State objects
-	#
-	# def __eq__(self, s): # ****
-		# return self.pos == s.pos 
 
 obstacles = []	
 		
 # 'astar' is a function that gives us the path and cost from start to goal state
 # Input: Input file describing the problem instance.
 # Output: Solution path and cost for that path.
-
-# The code for parsing the input file to create different useful lists are already written here.
-# See the course page for input file structure detail.
 def astar(input_file):
 
 	# Opening the input file
@@ -89,67 +81,34 @@ def astar(input_file):
 		lines += [(obstacle[2],obstacle[3])]
 		lines += [(obstacle[3],obstacle[0])]
 
-
-	# The main A* code will be here. Best of luck :)
-	# WRITE SOME CODE HERE
-
 	startH = straightLineDistance(start, goal)
 	startState = State(start, 0, startH, startH)
 	startState.succ = [startState]
 	q = startState
 	
-	# testing code ****
-	# children = find_valid_children(q, nodes, lines, obstacles, goal)
-	# for child in children: # children, list of states
-		# print (str(child.pos))
-	# ****
-	
 	openList = [startState]
 	closedList = []
-	
-	print ("g: " + str(startState.g_val)) # ****
-	print ("h: " + str(startState.h_val)) # ****
-	print ("f: " + str(startState.f_val)) # ****
-	print ("successors: " + output(startState.succ)) # ****
-	#print ("parent: " + str(startState.parent.pos)) # ****
 	
 	while (len(openList) != 0):
 		# finds the state in open with the lowest f_val
 		q = openList[0]
-		for node in openList:  # store open in priority queue and delete this loop
+		for node in openList:  
 			if (node.f_val < q.f_val):
 				q = node
 		 
 		openList.remove(q) # pop q off open list
-		# if (len(q.succ) == 0):
-			# q.succ = [startState]
 		children = find_valid_children(q, nodes, lines, obstacles, goal)
-		print("children" + output(children))
+
 		for child in children: # children, list of states	
-			#print ("Child: " + str(child.pos)) # ****
-			
-			# print ("g: " + str(child.g_val)) # ****
-			# print ("h: " + str(child.h_val)) # ****
-			# print ("f: " + str(child.f_val)) # ****
-			#print ("successors: " + output(child.succ)) # ****
-			# print ("parent: " + str(child.parent.pos)) # ****
-			
+			# Reached the goal
 			if (child.pos == goal):
-				print("goal") # ****
-				child.succ.append(child)
 				kid = child
 				successors = [kid]
 				while (kid.parent != None):
 					successors.append(kid.parent)
 					kid = kid.parent
 				return successors
-				#return child.succ
-			
-			# if (len(child.succ) != 0):
-				# if (child.succ[len(child.succ)-1] != q):
-					# child.succ.append(q)
-			
-			# TODO: May have to resort openList if using priority queue	
+		
 			skipNode1 = False
 			skipNode2 = False
 			for node in openList:
@@ -164,12 +123,6 @@ def astar(input_file):
 				openList.append(child)
 		
 		closedList.append(q)
-		
-		# print ("OpenList" + output(openList))
-		# print ("ClosedList" + output(closedList) + "\n")
-		# print(str(nodes))
-		# print(str(lines))
-		# print(str(obstacles))
 
 # Computes the length of the direct path from the input coordinates to the goal coordinates
 def straightLineDistance(node, goal):
@@ -187,20 +140,18 @@ def straightLineDistance(node, goal):
 # output
 # returns a list of states representing valid moves from the state input
 #
-def find_valid_children(state, Nodes, Lines, Obstacles, goal):
+def find_valid_children(state, nodes, lines, obstacles, goal):
 
 	# Empty list of children that needs to be returned by the function
 	children = []
 
-	for possibleState in Nodes:
-		if (find_valid_move(state.pos, possibleState, Lines, Obstacles)):
+	for possibleState in nodes:
+		if (find_valid_move(state.pos, possibleState, lines, obstacles)):
 			newState = State(possibleState) 
 			newState.g_val = state.g_val + straightLineDistance(state.pos, newState.pos)
 			newState.h_val = straightLineDistance(newState.pos, goal)
 			newState.f_val = newState.g_val + newState.h_val
 			newState.succ = state.succ
-			# if (len(newState.succ) == 0):
-				# newState.succ.append(start)
 			if (state not in newState.succ):
 				newState.succ.append(state)
 			newState.parent = state
@@ -299,32 +250,19 @@ def sub(a,b):
 def cross(a,b):
 	return a[0]*b[1]-a[1]*b[0]
 	
-#
-# outputs a list of States to the console.
-#	
+# Prints the shortest path to the console	
 def output(list):
-	listString = str(list[0].pos)
-	for step in list[1:len(list)]:
-		listString = listString + ', ' + str(step.pos)
-	return("[" + listString + "]")
-	
-def pathTuples(list):
-	tupleList = []
+	print("Point\t\t\tCumulative Cost")
 	for step in list:
-		tupleList = step.pos
-	return tupleList
+		print(str(step.pos) + "  \t\t" + str(step.g_val))
 
-
-# This is the main function. It calls the astar function and prints the result
-# in appropriate format as described in the course web-page.
+# Main function
 if __name__ == "__main__":
-
-	# 'result' will store the output of the 'astar' function.
-	# You need to print the result in appropriate format
-	# as described in the course web-page
 	result = astar('ComplexDataSet.txt')
-	print ("Shortest Path: " + output(result))
+	result.reverse()
+	output(result)
 	
+	# Create visualization
 	app = PathGraphics(obstacles, result)
 	app.master.title('Shortest Path')
 	app.mainloop()
