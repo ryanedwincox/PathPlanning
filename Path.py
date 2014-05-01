@@ -119,22 +119,31 @@ def astar(input_file):
 		# if (len(q.succ) == 0):
 			# q.succ = [startState]
 		children = find_valid_children(q, nodes, lines, obstacles, goal)
+		print("children" + output(children))
 		for child in children: # children, list of states	
-			print ("Child: " + str(child.pos)) # ****
+			#print ("Child: " + str(child.pos)) # ****
 			
-			print ("g: " + str(child.g_val)) # ****
-			print ("h: " + str(child.h_val)) # ****
-			print ("f: " + str(child.f_val)) # ****
-			print ("successors: " + output(child.succ)) # ****
-			print ("parent: " + str(child.parent.pos)) # ****
+			# print ("g: " + str(child.g_val)) # ****
+			# print ("h: " + str(child.h_val)) # ****
+			# print ("f: " + str(child.f_val)) # ****
+			#print ("successors: " + output(child.succ)) # ****
+			# print ("parent: " + str(child.parent.pos)) # ****
 			
 			if (child.pos == goal):
 				print("goal") # ****
 				child.succ.append(child)
-				return child.succ
+				kid = child
+				successors = [kid]
+				while (kid.parent != None):
+					successors.append(kid.parent)
+					kid = kid.parent
+				return successors
+				#return child.succ
 			
-			# TODO: The find operation may not find the second instance with lower f_val
-			# TODO: have to add loop instead of using the find operation
+			# if (len(child.succ) != 0):
+				# if (child.succ[len(child.succ)-1] != q):
+					# child.succ.append(q)
+			
 			# TODO: May have to resort openList if using priority queue	
 			skipNode1 = False
 			skipNode2 = False
@@ -150,8 +159,12 @@ def astar(input_file):
 				openList.append(child)
 		
 		closedList.append(q)
-		print ("OpenList" + output(openList))
-		print ("ClosedList" + output(closedList) + "\n")
+		
+		# print ("OpenList" + output(openList))
+		# print ("ClosedList" + output(closedList) + "\n")
+		# print(str(nodes))
+		# print(str(lines))
+		# print(str(obstacles))
 
 # Computes the length of the direct path from the input coordinates to the goal coordinates
 def straightLineDistance(node, goal):
@@ -183,7 +196,7 @@ def find_valid_children(state, nodes, lines, obstacles, goal):
 			newState.succ = state.succ
 			# if (len(newState.succ) == 0):
 				# newState.succ.append(start)
-			if (newState.succ[len(newState.succ)-1] != state):
+			if (state not in newState.succ):
 				newState.succ.append(state)
 			newState.parent = state
 			children.append(newState)
@@ -298,6 +311,6 @@ if __name__ == "__main__":
 	# 'result' will store the output of the 'astar' function.
 	# You need to print the result in appropriate format
 	# as described in the course web-page
-	result = astar('SimpleDataSet.txt')
+	result = astar('ComplexDataSet.txt')
 	print ("Shortest Path: " + output(result))
 
