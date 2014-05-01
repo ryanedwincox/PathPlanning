@@ -16,8 +16,6 @@
 # h_val is the heuristic function value for A* search
 # f_val is the sum of g_val and h_val
 # parent is the parent of the node
-	
-from PathGraphics import PathGraphics
 
 class State(object):
 
@@ -261,9 +259,5 @@ if __name__ == "__main__":
 	result = astar('ComplexDataSet.txt')
 	result.reverse()
 	output(result)
-	
-	# Create visualization
-	app = PathGraphics(obstacles, result)
-	app.master.title('Shortest Path')
-	app.mainloop()
+
 
