@@ -13,6 +13,8 @@
 # f_val is the sum of g_val and h_val
 # succ is the list of successors not including self
 # parent is the parent of the node
+	
+from PathGraphics import PathGraphics
 
 class State(object):
 
@@ -31,6 +33,8 @@ class State(object):
 	# def __eq__(self, s): # ****
 		# return self.pos == s.pos 
 
+obstacles = []	
+		
 # 'astar' is a function that gives us the path and cost from start to goal state
 # Input: Input file describing the problem instance.
 # Output: Solution path and cost for that path.
@@ -55,7 +59,7 @@ def astar(input_file):
 
 	# Creating a list to store the obstacle corners.
 	# They are stored in clockwise order as described in the course web-page
-	obstacles = []
+	#obstacles = []
 	for line in f:
 		ln = line.split()
 
@@ -66,6 +70,7 @@ def astar(input_file):
 		bottom_left = (int(ln[6]),int(ln[7]))
 
 		#'obstacles' is a list of tuples where each tuple contains four corner points
+		global obstacles
 		obstacles += [(top_left,top_right,bottom_right,bottom_left)]
 
 	# Closing the file. We don't need it anymore
@@ -182,13 +187,13 @@ def straightLineDistance(node, goal):
 # output
 # returns a list of states representing valid moves from the state input
 #
-def find_valid_children(state, nodes, lines, obstacles, goal):
+def find_valid_children(state, Nodes, Lines, Obstacles, goal):
 
 	# Empty list of children that needs to be returned by the function
 	children = []
 
-	for possibleState in nodes:
-		if (find_valid_move(state.pos, possibleState, lines, obstacles)):
+	for possibleState in Nodes:
+		if (find_valid_move(state.pos, possibleState, Lines, Obstacles)):
 			newState = State(possibleState) 
 			newState.g_val = state.g_val + straightLineDistance(state.pos, newState.pos)
 			newState.h_val = straightLineDistance(newState.pos, goal)
@@ -302,6 +307,12 @@ def output(list):
 	for step in list[1:len(list)]:
 		listString = listString + ', ' + str(step.pos)
 	return("[" + listString + "]")
+	
+def pathTuples(list):
+	tupleList = []
+	for step in list:
+		tupleList = step.pos
+	return tupleList
 
 
 # This is the main function. It calls the astar function and prints the result
@@ -313,4 +324,8 @@ if __name__ == "__main__":
 	# as described in the course web-page
 	result = astar('ComplexDataSet.txt')
 	print ("Shortest Path: " + output(result))
+	
+	app = PathGraphics(obstacles, result)
+	app.master.title('Shortest Path')
+	app.mainloop()
 
